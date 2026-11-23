@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHOPZI | Freshly Chopped Vegetables in Vadodara</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans & Inter for modern Gen-Z food startup look -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Three.js for Lightweight 3D Floating Vegetables -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            deepGreen: '#245C38',
+            freshGreen: '#8DBF69',
+            warmCream: '#FFF8E9',
+            carrotOrange: '#F49A38',
+          },
+          fontFamily: {
+            display: ['"Plus Jakarta Sans"', 'sans-serif'],
+            sans: ['"Inter"', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    :root {
+      --deep-green: #245C38;
+      --fresh-green: #8DBF69;
+      --warm-cream: #FFF8E9;
+      --carrot-orange: #F49A38;
+    }
+
+    body {
+      background-color: var(--warm-cream);
+      color: #1c2e22;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, .font-display {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* Sticky Glassmorphic Cream Navbar */
+    .glass-nav {
+      background: rgba(255, 248, 233, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(36, 92, 56, 0.1);
+    }
+
+    /* 3D Canvas Background Layer */
+    #three-hero-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: auto;
+    }
+
+    /* Realistic Transparent Zip-Lock Pouch Mockup Styling */
+    .ziplock-pouch {
+      position: relative;
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.72) 0%,
+        rgba(255, 255, 255, 0.25) 35%,
+        rgba(255, 255, 255, 0.12) 65%,
+        rgba(255, 255, 255, 0.65) 100%
+      );
+      border: 2px solid rgba(255, 255, 255, 0.85);
+      box-shadow:
+        0 25px 50px -12px rgba(36, 92, 56, 0.25),
+        inset 0 0 24px rgba(255, 255, 255, 0.75),
+        inset -6px -8px 18px rgba(36, 92, 56, 0.08);
+      border-radius: 22px 22px 32px 32px;
+      backdrop-filter: blur(4px);
+      overflow: hidden;
+      transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s ease;
+    }
+
+    .ziplock-pouch:hover {
+      transform: translateY(-10px) rotate(0deg) scale(1.02) !important;
+      box-shadow:
+        0 32px 60px -12px rgba(36, 92, 56, 0.32),
+        inset 0 0 28px rgba(255, 255, 255, 0.9);
+    }
+
+    /* Top Tear Notch & Zip-lock Track */
+    .ziplock-seal {
+      background: repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.55) 0px,
+        rgba(255, 255, 255, 0.95) 6px,
+        rgba(141, 191, 105, 0.35) 12px
+      );
+      border-top: 2px solid rgba(255, 255, 255, 0.9);
+      border-bottom: 3px double rgba(36, 92, 56, 0.28);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Plastic Glossy Reflection Sheen */
+    .plastic-glare {
+      background: linear-gradient(
+        115deg,
+        transparent 20%,
+        rgba(255, 255, 255, 0.55) 36%,
+        rgba(255, 255, 255, 0.1) 46%,
+        transparent 60%
+      );
+      pointer-events: none;
+    }
+
+    /* Floating Animations */
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px) rotate(-3deg); }
+      50% { transform: translateY(-14px) rotate(-1deg); }
+    }
+
+    @keyframes floatSlowAlt {
+      0%, 100% { transform: translateY(0px) rotate(4deg); }
+      50% { transform: translateY(-12px) rotate(2deg); }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5); }
+      50% { box-shadow: 0 0 0 14px rgba(37, 211, 102, 0); }
+    }
+
+    .animate-pouch-left {
+      animation: floatSlow 6s ease-in-out infinite;
+    }
+
+    .animate-pouch-right {
+      animation: floatSlowAlt 7s ease-in-out infinite;
+    }
+
+    .whatsapp-pulse {
+      animation: pulseGlow 2.4s infinite;
+    }
+
+    /* Scroll Reveal Utility */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: all 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Product Card Hover */
+    .product-card {
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 22px 44px -12px rgba(36, 92, 56, 0.16);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 9px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #FFF8E9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #8DBF69;
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #245C38;
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-carrotOrange selection:text-white">
+
+  <!-- ===================================================================== -->
+  <!-- OWNER QUICK-CONTROL BAR (Logo Upload, Live Edit Mode & AI Prompts)    -->
+  <!-- ===================================================================== -->
+  <div class="bg-deepGreen text-warmCream text-xs sm:text-sm py-2 px-4 relative z-50 border-b border-freshGreen/20">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-2 h-2 rounded-full bg-freshGreen animate-ping"></span>
+        <span class="font-medium">Vadodara Fresh-Cut Kitchen • Direct WhatsApp Orders</span>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Upload Original Brand Logo Button -->
+        <label for="logo-upload-input" class="cursor-pointer inline-flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white px-3 py-1 rounded-full font-medium transition">
+          <i class="fa-solid fa-image text-carrotOrange"></i>
+          <span>Upload Original Logo</span>
+        </label>
+        <input type="file" id="logo-upload-input" accept="image/*" class="hidden" onchange="handleLogoUpload(event)" />
+
+        <!-- Toggle Edit Prices/Weights Mode -->
+        <button id="toggle-edit-btn" onclick="toggleEditMode()" class="inline-flex items-center gap-1.5 bg-carrotOrange hover:bg-orange-500 text-white px-3 py-1 rounded-full font-semibold transition shadow-sm">
+          <i class="fa-solid fa-pen-to-square"></i>
+          <span id="edit-mode-label">Edit Prices & Weights</span>
+        </button>
+
+        <!-- AI Image Prompts Modal Trigger -->
+        <button onclick="openPromptModal()" class="inline-flex items-center gap-1.5 bg-freshGreen text-deepGreen hover:bg-lime-300 px-3 py-1 rounded-full font-bold transition shadow-sm">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <span>Zip-Lock Photo Prompts</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- STICKY NAVIGATION BAR (Exact Original Brand Logo on Top Left)         -->
+  <!-- ===================================================================== -->
+  <header class="sticky top-0 z-40 glass-nav transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+
+        <!-- TOP LEFT BRAND LOGO SLOT (Preserves exact aspect ratio, zero cropping/recoloring) -->
+        <a href="#home" class="flex items-center gap-3 group focus:outline-none" title="CHOPZI Home">
+          <div id="navbar-logo-wrapper" class="flex items-center justify-center h-14 max-w-[190px] sm:max-w-[220px] rounded-xl transition-transform duration-300 group-hover:scale-105">
+            <!-- Default Brand Mark SVG (Automatically replaced with exact uploaded image when user uploads logo) -->
+            <img
+              id="navbar-logo-img"
+              src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 260 76'><rect width='260' height='76' rx='18' fill='%23245C38'/><circle cx='42' cy='38' r='22' fill='%238DBF69'/><path d='M42 20 C48 28, 52 38, 42 56 C32 38, 36 28, 42 20 Z' fill='%23F49A38'/><path d='M36 21 Q42 12 48 21' stroke='%23FFF8E9' stroke-width='3' fill='none' stroke-linecap='round'/><text x='76' y='47' font-family='Arial, sans-serif' font-weight='900' font-size='32' letter-spacing='1.5' fill='%23FFF8E9'>CHOP<tspan fill='%23F49A38'>ZI</tspan></text><text x='78' y='62' font-family='Arial, sans-serif' font-weight='700' font-size='9.5' letter-spacing='2.5' fill='%238DBF69'>FRESH CUT VADODARA</text></svg>"
+              alt="CHOPZI Brand Logo"
+              class="h-14 w-auto max-w-full object-contain rounded-lg"
+            />
+          </div>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="hidden md:flex items-center space-x-8 font-display font-semibold text-deepGreen">
+          <a href="#home" class="hover:text-carrotOrange transition-colors py-2">Home</a>
+          <a href="#products" class="hover:text-carrotOrange transition-colors py-2">Our Products</a>
+          <a href="#why-us" class="hover:text-carrotOrange transition-colors py-2">Why Choose Us</a>
+          <a href="#about" class="hover:text-carrotOrange transition-colors py-2">About Us</a>
+          <a href="#contact" class="hover:text-carrotOrange transition-colors py-2">Contact</a>
+        </nav>
+
+        <!-- Right WhatsApp Order CTA + Mobile Menu Button -->
+        <div class="flex items-center gap-3">
+          <a
+            href="https://wa.me/918155007646?text=Hi%20CHOPZI%20Vadodara!%20I%20would%20like%20to%20order%20freshly%20chopped%20vegetables."
+            target="_blank"
+            rel="noopener noreferrer"
+            data-wa-link="general"
+            class="inline-flex items-center gap-2 bg-deepGreen hover:bg-[#1b472b] text-white font-display font-bold text-sm sm:text-base px-4 sm:px-6 py-2.5 sm:py-3 rounded-full shadow-lg shadow-deepGreen/25 transition-all hover:-translate-y-0.5 active:translate-y-0"
+          >
+            <i class="fa-brands fa-whatsapp text-lg text-freshGreen"></i>
+            <span>WhatsApp Order</span>
+          </a>
+
+          <!-- Mobile Hamburger -->
+          <button
+            id="mobile-menu-btn"
+            onclick="toggleMobileMenu()"
+            aria-label="Toggle Navigation"
+            class="md:hidden p-2.5 rounded-xl bg-deepGreen/10 text-deepGreen hover:bg-deepGreen hover:text-white transition"
+          >
+            <i class="fa-solid fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Dropdown Menu -->
+    <div id="mobile-menu" class="hidden md:hidden bg-warmCream border-t border-deepGreen/10 px-4 pt-3 pb-5 space-y-2 shadow-xl">
+      <a href="#home" onclick="toggleMobileMenu()" class="block px-4 py-2.5 rounded-xl font-display font-semibold text-deepGreen hover:bg-freshGreen/20">Home</a>
+      <a href="#products" onclick="toggleMobileMenu()" class="block px-4 py-2.5 rounded-xl font-display font-semibold text-deepGreen hover:bg-freshGreen/20">Our Products</a>
+      <a href="#why-us" onclick="toggleMobileMenu()" class="block px-4 py-2.5 rounded-xl font-display font-semibold text-deepGreen hover:bg-freshGreen/20">Why Choose Us</a>
+      <a href="#about" onclick="toggleMobileMenu()" class="block px-4 py-2.5 rounded-xl font-display font-semibold text-deepGreen hover:bg-freshGreen/20">About Us</a>
+      <a href="#contact" onclick="toggleMobileMenu()" class="block px-4 py-2.5 rounded-xl font-display font-semibold text-deepGreen hover:bg-freshGreen/20">Contact</a>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- HERO SECTION WITH 3D FLOATING VEGETABLES & BRANDED ZIP-LOCK POUCHES   -->
+  <!-- ===================================================================== -->
+  <section id="home" class="relative min-h-[90vh] flex items-center overflow-hidden pt-8 pb-20 lg:py-16">
+    <!-- Interactive Three.js 3D Floating Vegetables Canvas -->
+    <canvas id="three-hero-canvas"></canvas>
+
+    <!-- Soft Organic Ambient Gradients -->
+    <div class="absolute -top-24 -left-24 w-96 h-96 bg-freshGreen/25 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-0 right-0 w-[28rem] h-[28rem] bg-carrotOrange/20 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full pointer-events-none">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+
+        <!-- Left Hero Copy -->
+        <div class="lg:col-span-6 text-center lg:text-left pointer-events-auto">
+          <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/90 border border-freshGreen/40 shadow-sm mb-6">
+            <span class="w-2.5 h-2.5 rounded-full bg-carrotOrange animate-pulse"></span>
+            <span class="text-xs sm:text-sm font-display font-bold tracking-wide uppercase text-deepGreen">
+              Zero Prep • Hygienic Zip-Lock Packs • Vadodara
+            </span>
+          </div>
+
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-display font-extrabold text-deepGreen leading-[1.08] tracking-tight mb-6">
+            Freshness <br class="hidden sm:inline" />
+            <span class="relative inline-block text-carrotOrange">
+              Made Easy!
+              <svg class="absolute -bottom-2 left-0 w-full h-3 text-freshGreen" viewBox="0 0 200 12" fill="none" preserveAspectRatio="none">
+                <path d="M2 9C55 2 145 2 198 9" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </h1>
+
+          <p class="text-lg sm:text-xl text-deepGreen/85 font-medium max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed">
+            Freshly Chopped Vegetables, Now Available in Vadodara! Skip the peeling, washing, and chopping—open a crisp <span class="font-bold text-deepGreen">CHOPZI</span> zip-lock pouch and start cooking in seconds.
+          </p>
+
+          <!-- Hero CTA Buttons -->
+          <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+            <a
+              href="#products"
+              class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-deepGreen hover:bg-[#1a462a] text-white font-display font-bold text-base sm:text-lg px-8 py-4 rounded-2xl shadow-xl shadow-deepGreen/25 transition-all hover:-translate-y-1"
+            >
+              <span>Explore Products</span>
+              <i class="fa-solid fa-arrow-right text-carrotOrange"></i>
+            </a>
+
+            <a
+              href="https://wa.me/918155007646?text=Hello%20CHOPZI!%20I%20want%20to%20place%20an%20order%20for%20freshly%20chopped%20vegetables%20in%20Vadodara."
+              target="_blank"
+              rel="noopener noreferrer"
+              data-wa-link="general"
+              class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-carrotOrange hover:bg-orange-500 text-white font-display font-bold text-base sm:text-lg px-8 py-4 rounded-2xl shadow-xl shadow-carrotOrange/30 transition-all hover:-translate-y-1"
+            >
+              <i class="fa-brands fa-whatsapp text-2xl"></i>
+              <span>Order on WhatsApp</span>
+            </a>
+          </div>
+
+          <!-- Quick Trust Pills -->
+          <div class="mt-9 flex flex-wrap items-center justify-center lg:justify-start gap-3 text-xs sm:text-sm font-semibold text-deepGreen/80">
+            <span class="bg-white/85 px-3.5 py-1.5 rounded-full border border-deepGreen/10 shadow-sm">
+              <i class="fa-solid fa-sparkles text-carrotOrange mr-1.5"></i>Freshly Chopped on Order
+            </span>
+            <span class="bg-white/85 px-3.5 py-1.5 rounded-full border border-deepGreen/10 shadow-sm">
+              <i class="fa-solid fa-bag-shopping text-freshGreen mr-1.5"></i>Resealable Zip-Lock Pouches
+            </span>
+            <span class="bg-white/85 px-3.5 py-1.5 rounded-full border border-deepGreen/10 shadow-sm">
+              <i class="fa-solid fa-store text-carrotOrange mr-1.5"></i>Easy Pickup • Vadodara
+            </span>
+          </div>
+        </div>
+
+        <!-- Right Hero Showcase: Realistic Transparent Zip-Lock Packets with Brand Sticker -->
+        <div class="lg:col-span-6 relative flex items-center justify-center pointer-events-auto">
+          <div class="relative w-full max-w-lg mx-auto py-4">
+
+            <!-- Decorative Floating 3D Badge -->
+            <div class="hidden sm:flex items-center gap-2 bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-xl border border-freshGreen/30 absolute -top-3 right-2 z-30 animate-bounce">
+              <span class="w-3 h-3 rounded-full bg-freshGreen"></span>
+              <span class="text-xs font-display font-extrabold text-deepGreen">100% Transparent Freshness</span>
+            </div>
+
+            <!-- Two Realistic Transparent Zip-Lock Pouches Side-by-Side -->
+            <div class="grid grid-cols-2 gap-4 sm:gap-6 items-center">
+
+              <!-- Pouch 1: Diced Mixed Vegetables in Zip-Lock Bag -->
+              <div class="ziplock-pouch animate-pouch-left p-2.5 sm:p-3.5 -rotate-3">
+                <!-- Zip-Lock Top Seal -->
+                <div class="ziplock-seal h-7 sm:h-8 rounded-t-xl flex items-center justify-between px-3 mb-2">
+                  <span class="w-2 h-2 rounded-full bg-deepGreen/25"></span>
+                  <span class="text-[9px] font-bold tracking-widest uppercase text-deepGreen/60">RESEALABLE ZIP-LOCK</span>
+                  <span class="w-2 h-2 rounded-full bg-deepGreen/25"></span>
+                </div>
+
+                <!-- Fresh Chopped Vegetables Visible Inside Transparent Bag -->
+                <div class="relative h-56 sm:h-72 rounded-2xl overflow-hidden bg-white/40">
+                  <img
+                    src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=700&q=85"
+                    onerror="this.src='https://placehold.co/500x650/8DBF69/245C38?text=Chopped+Mixed+Veggies'"
+                    alt="Freshly Chopped Mixed Vegetables in Zip-Lock Pouch"
+                    class="w-full h-full object-cover scale-105"
+                  />
+                  <!-- Plastic Sheen Overlay -->
+                  <div class="plastic-glare absolute inset-0"></div>
+
+                  <!-- CHOPZI Brand Sticker on Pouch -->
+                  <div class="absolute inset-x-3 bottom-3 bg-warmCream/95 backdrop-blur-md rounded-xl p-2.5 shadow-lg border border-deepGreen/15 text-center">
+                    <img
+                      src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 260 76'><rect width='260' height='76' rx='18' fill='%23245C38'/><circle cx='42' cy='38' r='22' fill='%238DBF69'/><path d='M42 20 C48 28, 52 38, 42 56 C32 38, 36 28, 42 20 Z' fill='%23F49A38'/><path d='M36 21 Q42 12 48 21' stroke='%23FFF8E9' stroke-width='3' fill='none' stroke-linecap='round'/><text x='76' y='47' font-family='Arial, sans-serif' font-weight='900' font-size='32' letter-spacing='1.5' fill='%23FFF8E9'>CHOP<tspan fill='%23F49A38'>ZI</tspan></text><text x='78' y='62' font-family='Arial, sans-serif' font-weight='700' font-size='9.5' letter-spacing='2.5' fill='%238DBF69'>FRESH CUT VADODARA</text></svg>"
+                      alt="CHOPZI Pouch Sticker"
+                      class="h-7 sm:h-8 w-auto mx-auto object-contain mb-1 brand-sticker-img"
+                    />
+                    <p class="text-[11px] sm:text-xs font-display font-extrabold text-deepGreen">Mixed Veggies Cut</p>
+                    <p class="text-[10px] font-semibold text-carrotOrange">Ready to Cook • Hygienic</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pouch 2: Chopped Carrots & Capsicums in Zip-Lock Bag -->
+              <div class="ziplock-pouch animate-pouch-right p-2.5 sm:p-3.5 rotate-3 mt-8">
+                <!-- Zip-Lock Top Seal -->
+                <div class="ziplock-seal h-7 sm:h-8 rounded-t-xl flex items-center justify-between px-3 mb-2">
+                  <span class="w-2 h-2 rounded-full bg-deepGreen/25"></span>
+                  <span class="text-[9px] font-bold tracking-widest uppercase text-deepGreen/60">FRESH SEAL ZIP</span>
+                  <span class="w-2 h-2 rounded-full bg-deepGreen/25"></span>
+                </div>
+
+                <!-- Fresh Chopped Carrots & Peppers Visible Inside Transparent Bag -->
+                <div class="relative h-56 sm:h-72 rounded-2xl overflow-hidden bg-white/40">
+                  <img
+                    src="https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=700&q=85"
+                    onerror="this.src='https://placehold.co/500x650/F49A38/FFF8E9?text=Chopped+Carrots'"
+                    alt="Freshly Chopped Carrots in Zip-Lock Pouch"
+                    class="w-full h-full object-cover scale-105"
+                  />
+                  <!-- Plastic Sheen Overlay -->
+                  <div class="plastic-glare absolute inset-0"></div>
+
+                  <!-- CHOPZI Brand Sticker on Pouch -->
+                  <div class="absolute inset-x-3 bottom-3 bg-warmCream/95 backdrop-blur-md rounded-xl p-2.5 shadow-lg border border-deepGreen/15 text-center">
+                    <img
+                      src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 260 76'><rect width='260' height='76' rx='18' fill='%23245C38'/><circle cx='42' cy='38' r='22' fill='%238DBF69'/><path d='M42 20 C48 28, 52 38, 42 56 C32 38, 36 28, 42 20 Z' fill='%23F49A38'/><path d='M36 21 Q42 12 48 21' stroke='%23FFF8E9' stroke-width='3' fill='none' stroke-linecap='round'/><text x='76' y='47' font-family='Arial, sans-serif' font-weight='900' font-size='32' letter-spacing='1.5' fill='%23FFF8E9'>CHOP<tspan fill='%23F49A38'>ZI</tspan></text><text x='78' y='62' font-family='Arial, sans-serif' font-weight='700' font-size='9.5' letter-spacing='2.5' fill='%238DBF69'>FRESH CUT VADODARA</text></svg>"
+                      alt="CHOPZI Pouch Sticker"
+                      class="h-7 sm:h-8 w-auto mx-auto object-contain mb-1 brand-sticker-img"
+                    />
+                    <p class="text-[11px] sm:text-xs font-display font-extrabold text-deepGreen">Diced Carrot & Veggies</p>
+                    <p class="text-[10px] font-semibold text-carrotOrange">Zero Waste • Crisp Cut</p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Interactive Hint Below Pouches -->
+            <p class="text-center text-xs text-deepGreen/70 font-medium mt-4">
+              <i class="fa-solid fa-hand-pointer text-carrotOrange mr-1"></i>
+              Move your cursor or swipe across the background to spin the 3D vegetables!
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- OUR PRODUCTS SECTION (5 Fresh Chopped Items + Editable Price/Weight)  -->
+  <!-- ===================================================================== -->
+  <section id="products" class="py-20 bg-white/60 border-y border-deepGreen/10 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- Section Heading -->
+      <div class="text-center max-w-2xl mx-auto mb-12 reveal">
+        <span class="inline-block px-4 py-1.5 rounded-full bg-freshGreen/25 text-deepGreen font-display font-bold text-xs uppercase tracking-wider mb-3">
+          Packed in Transparent Zip-Lock Bags
+        </span>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold text-deepGreen mb-4">
+          Our Fresh-Cut Menu
+        </h2>
+        <p class="text-deepGreen/80 text-base sm:text-lg">
+          Choose your everyday essentials, neatly chopped and sealed fresh in transparent CHOPZI zip-lock packets.
+        </p>
+      </div>
+
+      <!-- Editable Owner Banner (Visible when Edit Mode is Active) -->
+      <div id="owner-edit-banner" class="hidden mb-8 bg-deepGreen text-warmCream p-5 rounded-3xl shadow-xl border-2 border-carrotOrange">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <h3 class="font-display font-bold text-lg text-carrotOrange flex items-center gap-2">
+              <i class="fa-solid fa-sliders"></i> Owner Live Edit Mode Active
+            </h3>
+            <p class="text-xs sm:text-sm text-warmCream/85 mt-1">
+              Click any <strong>Price</strong>, <strong>Weight</strong>, or <strong>Availability</strong> badge on the product cards below to type your exact rates, or update your WhatsApp number here. Changes save automatically in your browser!
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            <div class="flex items-center bg-white/10 rounded-xl px-3 py-2 border border-white/20">
+              <span class="text-xs font-bold text-freshGreen mr-2">WhatsApp:</span>
+              <input
+                type="text"
+                id="whatsapp-number-input"
+                value="8155007646"
+                onchange="updateWhatsAppNumber(this.value)"
+                class="bg-transparent text-white font-bold text-sm w-28 focus:outline-none"
+              />
+            </div>
+            <button onclick="resetCatalogData()" class="text-xs bg-white/15 hover:bg-red-500/80 text-white px-3.5 py-2.5 rounded-xl font-semibold transition">
+              Reset Defaults
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Grid -->
+      <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Product Cards are dynamically rendered via clean JS data array so editing is effortless -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- WHY CHOOSE US SECTION (4 Animated Icon Cards)                         -->
+  <!-- ===================================================================== -->
+  <section id="why-us" class="py-20 relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="text-center max-w-2xl mx-auto mb-14 reveal">
+        <span class="inline-block px-4 py-1.5 rounded-full bg-carrotOrange/20 text-deepGreen font-display font-bold text-xs uppercase tracking-wider mb-3">
+          Why Vadodara Loves CHOPZI
+        </span>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold text-deepGreen mb-4">
+          Cooking Made Effortless
+        </h2>
+        <p class="text-deepGreen/80 text-base sm:text-lg">
+          Thoughtfully prepared vegetables designed for busy families, students, and working professionals.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+
+        <!-- Card 1: Freshly Chopped -->
+        <div class="reveal bg-white rounded-3xl p-7 shadow-lg shadow-deepGreen/5 border border-deepGreen/10 hover:border-freshGreen transition-all group hover:-translate-y-2">
+          <div class="w-16 h-16 rounded-2xl bg-freshGreen/25 text-deepGreen flex items-center justify-center text-3xl mb-6 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
+            <i class="fa-solid fa-seedling"></i>
+          </div>
+          <h3 class="font-display font-extrabold text-xl text-deepGreen mb-2.5">Freshly Chopped</h3>
+          <p class="text-sm text-deepGreen/75 leading-relaxed">
+            Handpicked vegetables washed thoroughly and chopped fresh with clean kitchen hygiene.
+          </p>
+        </div>
+
+        <!-- Card 2: Convenient Packaging -->
+        <div class="reveal bg-white rounded-3xl p-7 shadow-lg shadow-deepGreen/5 border border-deepGreen/10 hover:border-carrotOrange transition-all group hover:-translate-y-2">
+          <div class="w-16 h-16 rounded-2xl bg-carrotOrange/20 text-carrotOrange flex items-center justify-center text-3xl mb-6 group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-300">
+            <i class="fa-solid fa-bag-shopping"></i>
+          </div>
+          <h3 class="font-display font-extrabold text-xl text-deepGreen mb-2.5">Convenient Packaging</h3>
+          <p class="text-sm text-deepGreen/75 leading-relaxed">
+            Packed in crystal-clear, resealable zip-lock pouches that keep veggies crisp and fridge-ready.
+          </p>
+        </div>
+
+        <!-- Card 3: Saves Preparation Time -->
+        <div class="reveal bg-white rounded-3xl p-7 shadow-lg shadow-deepGreen/5 border border-deepGreen/10 hover:border-freshGreen transition-all group hover:-translate-y-2">
+          <div class="w-16 h-16 rounded-2xl bg-deepGreen/10 text-deepGreen flex items-center justify-center text-3xl mb-6 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
+            <i class="fa-solid fa-clock"></i>
+          </div>
+          <h3 class="font-display font-extrabold text-xl text-deepGreen mb-2.5">Saves Preparation Time</h3>
+          <p class="text-sm text-deepGreen/75 leading-relaxed">
+            Cut down 30–40 minutes of daily peeling, chopping, and kitchen cleanup before every meal.
+          </p>
+        </div>
+
+        <!-- Card 4: Easy Ordering -->
+        <div class="reveal bg-white rounded-3xl p-7 shadow-lg shadow-deepGreen/5 border border-deepGreen/10 hover:border-carrotOrange transition-all group hover:-translate-y-2">
+          <div class="w-16 h-16 rounded-2xl bg-freshGreen/25 text-deepGreen flex items-center justify-center text-3xl mb-6 group-hover:scale-110 group-hover:-rotate-6 transition-transform duration-300">
+            <i class="fa-brands fa-whatsapp"></i>
+          </div>
+          <h3 class="font-display font-extrabold text-xl text-deepGreen mb-2.5">Easy Ordering</h3>
+          <p class="text-sm text-deepGreen/75 leading-relaxed">
+            No complicated apps or logins—simply pick your veggies and place your order directly on WhatsApp.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- HOW TO ORDER SECTION (4-Step Animated Process)                        -->
+  <!-- ===================================================================== -->
+  <section class="py-20 bg-deepGreen text-warmCream relative overflow-hidden">
+    <!-- Subtle Background Pattern -->
+    <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(#8DBF69 1.5px, transparent 1.5px); background-size: 28px 28px;"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="text-center max-w-2xl mx-auto mb-16 reveal">
+        <span class="inline-block px-4 py-1.5 rounded-full bg-white/10 text-freshGreen font-display font-bold text-xs uppercase tracking-wider mb-3">
+          Simple 4-Step Flow
+        </span>
+        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold text-white mb-4">
+          How to Order from CHOPZI
+        </h2>
+        <p class="text-warmCream/80 text-base sm:text-lg">
+          From our chopping board to your kitchen counter in four smooth steps.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+        <!-- Connecting Line on Desktop -->
+        <div class="hidden md:block absolute top-12 left-[12%] right-[12%] h-1 bg-gradient-to-r from-freshGreen via-carrotOrange to-freshGreen rounded-full opacity-40"></div>
+
+        <!-- Step 1 -->
+        <div class="reveal relative text-center group">
+          <div class="w-24 h-24 mx-auto rounded-3xl bg-warmCream text-deepGreen flex flex-col items-center justify-center shadow-xl mb-5 relative z-10 group-hover:scale-105 transition-transform">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-carrotOrange">Step 01</span>
+            <i class="fa-solid fa-carrot text-3xl mt-1"></i>
+          </div>
+          <h3 class="font-display font-bold text-xl text-white mb-2">Choose Vegetables</h3>
+          <p class="text-sm text-warmCream/75">Browse our fresh-cut onions, tomatoes, capsicums, carrots & mixed veggies.</p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="reveal relative text-center group">
+          <div class="w-24 h-24 mx-auto rounded-3xl bg-warmCream text-deepGreen flex flex-col items-center justify-center shadow-xl mb-5 relative z-10 group-hover:scale-105 transition-transform">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-carrotOrange">Step 02</span>
+            <i class="fa-brands fa-whatsapp text-3xl mt-1 text-green-600"></i>
+          </div>
+          <h3 class="font-display font-bold text-xl text-white mb-2">Place Order</h3>
+          <p class="text-sm text-warmCream/75">Tap "Order on WhatsApp" to send your selection directly to our team.</p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="reveal relative text-center group">
+          <div class="w-24 h-24 mx-auto rounded-3xl bg-warmCream text-deepGreen flex flex-col items-center justify-center shadow-xl mb-5 relative z-10 group-hover:scale-105 transition-transform">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-carrotOrange">Step 03</span>
+            <i class="fa-solid fa-circle-check text-3xl mt-1 text-deepGreen"></i>
+          </div>
+          <h3 class="font-display font-bold text-xl text-white mb-2">Order Confirmation</h3>
+          <p class="text-sm text-warmCream/75">We confirm today's fresh rate, pack size & pickup timing on WhatsApp.</p>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="reveal relative text-center group">
+          <div class="w-24 h-24 mx-auto rounded-3xl bg-carrotOrange text-white flex flex-col items-center justify-center shadow-xl mb-5 relative z-10 group-hover:scale-105 transition-transform">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-warmCream">Step 04</span>
+            <i class="fa-solid fa-bag-shopping text-3xl mt-1"></i>
+          </div>
+          <h3 class="font-display font-bold text-xl text-white mb-2">Self Pickup</h3>
+          <p class="text-sm text-warmCream/75">Pick up your freshly chopped, sealed zip-lock packets from our Vadodara pickup point.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- ABOUT US SECTION                                                      -->
+  <!-- ===================================================================== -->
+  <section id="about" class="py-20 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-white rounded-[2.5rem] p-8 sm:p-12 lg:p-16 shadow-xl shadow-deepGreen/5 border border-deepGreen/10 reveal">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+
+          <!-- Left Visual Card -->
+          <div class="lg:col-span-5">
+            <div class="relative rounded-3xl overflow-hidden shadow-lg aspect-[4/3]">
+              <img
+                src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=900&q=85"
+                onerror="this.src='https://placehold.co/800x600/245C38/FFF8E9?text=Fresh+Cut+Vegetables+Vadodara'"
+                alt="Freshly Chopped Colorful Vegetables"
+                class="w-full h-full object-cover"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-deepGreen/75 via-transparent to-transparent flex items-end p-6">
+                <div class="text-white">
+                  <p class="text-xs uppercase tracking-widest text-freshGreen font-bold">Home-Based Kitchen</p>
+                  <p class="font-display font-bold text-lg">Crafted with Care in Vadodara</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Authentic Story -->
+          <div class="lg:col-span-7">
+            <span class="inline-block px-4 py-1.5 rounded-full bg-freshGreen/25 text-deepGreen font-display font-bold text-xs uppercase tracking-wider mb-4">
+              Our Story • Vadodara, Gujarat
+            </span>
+            <h2 class="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold text-deepGreen leading-tight mb-6">
+              A Little Freshness in Every Meal
+            </h2>
+            <p class="text-lg sm:text-xl text-deepGreen/85 leading-relaxed mb-6 font-medium">
+              We are a small home-based fresh-cut vegetables business making everyday cooking easier for households in Vadodara.
+            </p>
+            <p class="text-base text-deepGreen/75 leading-relaxed mb-8">
+              At CHOPZI, we believe home-cooked meals shouldn't feel like a chore. Every packet is washed, neatly chopped, and sealed in food-grade transparent zip-lock pouches so you can spend less time prepping and more time enjoying warm, healthy meals with your family.
+            </p>
+
+            <div class="flex flex-wrap gap-4">
+              <a
+                href="#products"
+                class="inline-flex items-center gap-2 bg-deepGreen hover:bg-[#1a462a] text-white font-display font-bold px-6 py-3.5 rounded-2xl transition shadow-md"
+              >
+                <span>View Fresh Packs</span>
+                <i class="fa-solid fa-arrow-right text-carrotOrange"></i>
+              </a>
+              <a
+                href="https://wa.me/918155007646?text=Hi%20CHOPZI!%20I%20would%20love%20to%20know%20more%20about%20your%20fresh-cut%20vegetables%20in%20Vadodara."
+                target="_blank"
+                rel="noopener noreferrer"
+                data-wa-link="general"
+                class="inline-flex items-center gap-2 bg-warmCream hover:bg-freshGreen/20 text-deepGreen border border-deepGreen/20 font-display font-bold px-6 py-3.5 rounded-2xl transition"
+              >
+                <i class="fa-brands fa-whatsapp text-green-600 text-lg"></i>
+                <span>Chat With Us</span>
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- CONTACT SECTION (Vadodara, WhatsApp, Instagram, Editable Details)     -->
+  <!-- ===================================================================== -->
+  <section id="contact" class="py-20 bg-white/70 border-t border-deepGreen/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center reveal">
+
+        <!-- Left Contact Info -->
+        <div class="lg:col-span-6">
+          <span class="inline-block px-4 py-1.5 rounded-full bg-carrotOrange/20 text-deepGreen font-display font-bold text-xs uppercase tracking-wider mb-3">
+            Get In Touch
+          </span>
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-display font-extrabold text-deepGreen mb-4">
+            Order & Pickup in Vadodara
+          </h2>
+          <p class="text-deepGreen/80 text-base sm:text-lg mb-8">
+            Have a question or want to check today's fresh vegetable rates? Message us directly on WhatsApp and pick up your fresh-cut pouches at your convenience.
+          </p>
+
+          <div class="space-y-4">
+            <!-- Location / Pickup Point -->
+            <div class="flex items-start gap-4 bg-warmCream p-4 rounded-2xl border border-deepGreen/10">
+              <div class="w-12 h-12 rounded-xl bg-deepGreen text-white flex items-center justify-center text-xl shrink-0">
+                <i class="fa-solid fa-location-dot"></i>
+              </div>
+              <div>
+                <h4 class="font-display font-bold text-deepGreen">Pickup Location</h4>
+                <p id="contact-location-text" contenteditable="true" class="text-sm text-deepGreen/80 focus:outline-none focus:bg-white px-1 rounded">
+                  Vadodara, Gujarat, India (Exact pickup address shared on order confirmation)
+                </p>
+              </div>
+            </div>
+
+            <!-- Phone / WhatsApp -->
+            <div class="flex items-start gap-4 bg-warmCream p-4 rounded-2xl border border-deepGreen/10">
+              <div class="w-12 h-12 rounded-xl bg-freshGreen text-deepGreen flex items-center justify-center text-xl shrink-0">
+                <i class="fa-brands fa-whatsapp"></i>
+              </div>
+              <div>
+                <h4 class="font-display font-bold text-deepGreen">WhatsApp Order & Inquiry</h4>
+                <p class="text-sm text-deepGreen/80 font-semibold">
+                  +91 <span id="contact-phone-display">8155007646</span>
+                </p>
+              </div>
+            </div>
+
+            <!-- Instagram (Uncomment below once your Instagram ID is ready)
+            <div class="flex items-start gap-4 bg-warmCream p-4 rounded-2xl border border-deepGreen/10">
+              <div class="w-12 h-12 rounded-xl bg-carrotOrange text-white flex items-center justify-center text-xl shrink-0">
+                <i class="fa-brands fa-instagram"></i>
+              </div>
+              <div>
+                <h4 class="font-display font-bold text-deepGreen">Instagram</h4>
+                <a
+                  href="https://instagram.com/YOUR_HANDLE_HERE"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  id="contact-insta-link"
+                  class="text-sm font-semibold text-deepGreen hover:text-carrotOrange transition"
+                >
+                  @YOUR_HANDLE_HERE
+                </a>
+              </div>
+            </div>
+            -->
+          </div>
+        </div>
+
+        <!-- Right Quick WhatsApp Message Builder Card -->
+        <div class="lg:col-span-6">
+          <div class="bg-deepGreen text-warmCream rounded-3xl p-8 sm:p-10 shadow-2xl relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-40 h-40 bg-freshGreen/20 rounded-full blur-2xl pointer-events-none"></div>
+
+            <h3 class="font-display font-extrabold text-2xl sm:text-3xl text-white mb-2">
+              Quick WhatsApp Pickup Order
+            </h3>
+            <p class="text-sm text-warmCream/80 mb-6">
+              Send your vegetable list and preferred pickup time below directly to our WhatsApp!
+            </p>
+
+            <form onsubmit="sendCustomWhatsAppOrder(event)" class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-freshGreen mb-1.5">Your Name</label>
+                <input
+                  type="text"
+                  id="cust-name"
+                  placeholder="Enter your name"
+                  class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-carrotOrange"
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-freshGreen mb-1.5">Preferred Pickup Time</label>
+                <input
+                  type="text"
+                  id="cust-area"
+                  placeholder="e.g., Morning 10 AM or Evening 6 PM"
+                  class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-carrotOrange"
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-freshGreen mb-1.5">Vegetables Needed</label>
+                <textarea
+                  id="cust-items"
+                  rows="3"
+                  placeholder="e.g., Chopped Onion, Chopped Capsicum, Mixed Vegetables..."
+                  class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-carrotOrange"
+                ></textarea>
+              </div>
+
+              <button
+                type="submit"
+                class="w-full bg-carrotOrange hover:bg-orange-500 text-white font-display font-extrabold text-base py-4 rounded-2xl shadow-lg transition flex items-center justify-center gap-2.5"
+              >
+                <i class="fa-brands fa-whatsapp text-2xl"></i>
+                <span>Send Pickup Order on WhatsApp</span>
+              </button>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- FOOTER                                                                -->
+  <!-- ===================================================================== -->
+  <footer class="bg-[#183f26] text-warmCream pt-14 pb-8 border-t border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-10 pb-10 border-b border-white/10">
+
+        <!-- Brand Logo & Description -->
+        <div class="md:col-span-5">
+          <div class="inline-block mb-4">
+            <img
+              id="footer-logo-img"
+              src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 260 76'><rect width='260' height='76' rx='18' fill='%23245C38'/><circle cx='42' cy='38' r='22' fill='%238DBF69'/><path d='M42 20 C48 28, 52 38, 42 56 C32 38, 36 28, 42 20 Z' fill='%23F49A38'/><path d='M36 21 Q42 12 48 21' stroke='%23FFF8E9' stroke-width='3' fill='none' stroke-linecap='round'/><text x='76' y='47' font-family='Arial, sans-serif' font-weight='900' font-size='32' letter-spacing='1.5' fill='%23FFF8E9'>CHOP<tspan fill='%23F49A38'>ZI</tspan></text><text x='78' y='62' font-family='Arial, sans-serif' font-weight='700' font-size='9.5' letter-spacing='2.5' fill='%238DBF69'>FRESH CUT VADODARA</text></svg>"
+              alt="CHOPZI Footer Logo"
+              class="h-14 w-auto max-w-[200px] object-contain rounded-lg"
+            />
+          </div>
+          <p class="text-sm text-warmCream/75 max-w-sm leading-relaxed">
+            Freshly chopped vegetables sealed in hygienic transparent zip-lock pouches. Making everyday cooking easier for households in Vadodara, Gujarat.
+          </p>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="md:col-span-3">
+          <h4 class="font-display font-bold text-white uppercase tracking-wider text-xs mb-4">Navigation</h4>
+          <ul class="space-y-2.5 text-sm text-warmCream/80">
+            <li><a href="#home" class="hover:text-carrotOrange transition">Home</a></li>
+            <li><a href="#products" class="hover:text-carrotOrange transition">Our Products</a></li>
+            <li><a href="#why-us" class="hover:text-carrotOrange transition">Why Choose Us</a></li>
+            <li><a href="#about" class="hover:text-carrotOrange transition">About Us</a></li>
+            <li><a href="#contact" class="hover:text-carrotOrange transition">Contact</a></li>
+          </ul>
+        </div>
+
+        <!-- Connect -->
+        <div class="md:col-span-4">
+          <h4 class="font-display font-bold text-white uppercase tracking-wider text-xs mb-4">Order & Pickup</h4>
+          <p class="text-sm text-warmCream/80 mb-4">
+            <i class="fa-solid fa-location-dot text-carrotOrange mr-2"></i>Self Pickup • Vadodara, Gujarat<br />
+            <i class="fa-solid fa-phone text-freshGreen mr-2 mt-2"></i>+91 <span id="footer-phone-display">8155007646</span>
+          </p>
+          <div class="flex items-center gap-3">
+            <a
+              href="https://wa.me/918155007646"
+              target="_blank"
+              rel="noopener noreferrer"
+              data-wa-link="general"
+              aria-label="WhatsApp"
+              class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/10 hover:bg-green-500 text-white text-sm font-semibold transition"
+            >
+              <i class="fa-brands fa-whatsapp text-lg"></i>
+              <span>Chat on WhatsApp</span>
+            </a>
+            <!-- Uncomment Instagram icon below once your page is live
+            <a
+              href="https://instagram.com/YOUR_HANDLE_HERE"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+              class="w-11 h-11 rounded-full bg-white/10 hover:bg-carrotOrange text-white flex items-center justify-center text-lg transition"
+            >
+              <i class="fa-brands fa-instagram"></i>
+            </a>
+            -->
+          </div>
+        </div>
+
+      </div>
+
+      <div class="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-warmCream/60 gap-3">
+        <p>&copy; <span id="current-year"></span> CHOPZI Vadodara. All rights reserved.</p>
+        <p>Freshness Made Easy • Home-Based Fresh-Cut Kitchen</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================================================================== -->
+  <!-- FLOATING WHATSAPP ORDER BUTTON                                        -->
+  <!-- ===================================================================== -->
+  <a
+    href="https://wa.me/918155007646?text=Hi%20CHOPZI%20Vadodara!%20I%20want%20to%20order%20freshly%20chopped%20vegetables."
+    target="_blank"
+    rel="noopener noreferrer"
+    data-wa-link="general"
+    aria-label="Order on WhatsApp"
+    class="fixed bottom-6 right-6 z-40 whatsapp-pulse bg-[#25D366] hover:bg-[#1ebe5d] text-white w-14 h-14 sm:w-16 sm:h-16 rounded-full shadow-2xl flex items-center justify-center text-3xl transition-transform hover:scale-110"
+  >
+    <i class="fa-brands fa-whatsapp"></i>
+  </a>
+
+  <!-- ===================================================================== -->
+  <!-- AI IMAGE PROMPTS MODAL (For Realistic Zip-Lock Vegetable Photos)      -->
+  <!-- ===================================================================== -->
+  <div id="prompt-modal" class="hidden fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-warmCream rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 sm:p-8 shadow-2xl border-2 border-deepGreen relative">
+      <button onclick="closePromptModal()" class="absolute top-5 right-5 w-10 h-10 rounded-full bg-deepGreen/10 hover:bg-deepGreen text-deepGreen hover:text-white flex items-center justify-center transition">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+
+      <span class="inline-block px-3 py-1 rounded-full bg-carrotOrange/20 text-deepGreen font-display font-bold text-xs uppercase mb-2">
+        Ready-to-Use AI Image Prompts
+      </span>
+      <h3 class="font-display font-extrabold text-2xl text-deepGreen mb-2">
+        Generate Realistic Zip-Lock Vegetable Photos
+      </h3>
+      <p class="text-sm text-deepGreen/80 mb-5">
+        Copy these prompts into Midjourney, DALL·E 3, Ideogram, or Leonardo AI to generate crystal-clear product images with transparent zip-lock pouches, then swap the image URLs in the product list!
+      </p>
+
+      <div class="space-y-4">
+        <!-- Prompt 1 -->
+        <div class="bg-white p-4 rounded-2xl border border-deepGreen/15">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="font-display font-bold text-sm text-deepGreen">1. Hero Mixed Veggies in Zip-Lock Pouch</span>
+            <button onclick="copyPromptText('prompt-1', this)" class="text-xs bg-deepGreen text-white px-3 py-1 rounded-lg font-semibold hover:bg-carrotOrange transition">Copy Prompt</button>
+          </div>
+          <p id="prompt-1" class="text-xs text-deepGreen/80 leading-relaxed select-all">
+            Commercial studio food photography of a crystal-clear transparent stand-up zip-lock plastic pouch filled with freshly diced carrots, green capsicum, red onions, and sweet corn, subtle water droplets of freshness inside the pouch, clean minimalist green and orange brand label sticker in the center, standing on a warm cream marble kitchen counter, bright natural morning sunlight, soft shadows, ultra-sharp 8k product photo.
+          </p>
+        </div>
+
+        <!-- Prompt 2 -->
+        <div class="bg-white p-4 rounded-2xl border border-deepGreen/15">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="font-display font-bold text-sm text-deepGreen">2. Chopped Red Onion Zip-Lock Pack</span>
+            <button onclick="copyPromptText('prompt-2', this)" class="text-xs bg-deepGreen text-white px-3 py-1 rounded-lg font-semibold hover:bg-carrotOrange transition">Copy Prompt</button>
+          </div>
+          <p id="prompt-2" class="text-xs text-deepGreen/80 leading-relaxed select-all">
+            High-resolution studio product shot of a sealed transparent food-grade zip-lock bag neatly filled with uniformly finely chopped fresh red onions, crisp texture clearly visible through clear plastic sheen, warm cream #FFF8E9 clean background, soft studio rim lighting, appetizing Indian kitchen prep aesthetic, 8k commercial photography.
+          </p>
+        </div>
+
+        <!-- Prompt 3 -->
+        <div class="bg-white p-4 rounded-2xl border border-deepGreen/15">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="font-display font-bold text-sm text-deepGreen">3. Chopped Capsicum & Carrot Zip-Lock Pack</span>
+            <button onclick="copyPromptText('prompt-3', this)" class="text-xs bg-deepGreen text-white px-3 py-1 rounded-lg font-semibold hover:bg-carrotOrange transition">Copy Prompt</button>
+          </div>
+          <p id="prompt-3" class="text-xs text-deepGreen/80 leading-relaxed select-all">
+            Ultra-clean commercial product photography of two transparent resealable zip-lock pouches side by side, one filled with bright diced green capsicum cubes and the other with vibrant orange diced carrot cubes, realistic plastic highlights, fresh dew drops, warm cream background, modern D2C food startup packaging style, 8k resolution.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- TOAST NOTIFICATION (Replaces alert() cleanly)                         -->
+  <!-- ===================================================================== -->
+  <div id="toast-box" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-opacity duration-300">
+    <div id="toast-message" class="bg-deepGreen text-warmCream px-5 py-3 rounded-full shadow-2xl font-display font-semibold text-sm border border-freshGreen/40">
+      Updated!
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- JAVASCRIPT: CONFIG, EDITABLE CATALOG, LOGO UPLOADER & THREE.JS 3D     -->
+  <!-- ===================================================================== -->
+  <script>
+    // =========================================================================
+    // 1. EASY BUSINESS CONFIGURATION (Edit anytime here or live on the page!)
+    // =========================================================================
+    const DEFAULT_CONFIG = {
+      whatsappNumber: '8155007646',
+      countryCode: '91',
+      businessName: 'CHOPZI',
+      city: 'Vadodara',
+      products: [
+        {
+          id: 'chopped-onion',
+          name: 'Chopped Onion',
+          subtitle: 'Finely diced, tear-free & ready for tadka or curries',
+          image: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&w=800&q=85',
+          fallback: 'https://placehold.co/600x450/FFF8E9/245C38?text=Chopped+Onion+Pack',
+          price: 'Daily Fresh Rate',
+          weight: 'Custom Pack Size',
+          availability: 'Fresh on Order',
+          tag: 'Daily Essential'
+        },
+        {
+          id: 'chopped-tomato',
+          name: 'Chopped Tomato',
+          subtitle: 'Juicy, firm ripe tomatoes diced cleanly without mess',
+          image: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=800&q=85',
+          fallback: 'https://placehold.co/600x450/F49A38/FFF8E9?text=Chopped+Tomato+Pack',
+          price: 'Daily Fresh Rate',
+          weight: 'Custom Pack Size',
+          availability: 'Fresh on Order',
+          tag: 'Gravy Ready'
+        },
+        {
+          id: 'chopped-capsicum',
+          name: 'Chopped Capsicum',
+          subtitle: 'Crisp green bell peppers diced evenly for stir-fry & paneer',
+          image: 'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?auto=format&fit=crop&w=800&q=85',
+          fallback: 'https://placehold.co/600x450/8DBF69/245C38?text=Chopped+Capsicum+Pack',
+          price: 'Daily Fresh Rate',
+          weight: 'Custom Pack Size',
+          availability: 'Fresh on Order',
+          tag: 'Super Crisp'
+        },
+        {
+          id: 'chopped-carrot',
+          name: 'Chopped Carrot',
+          subtitle: 'Sweet, vibrant orange carrots peeled & cubed to perfection',
+          image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=800&q=85',
+          fallback: 'https://placehold.co/600x450/F49A38/FFF8E9?text=Chopped+Carrot+Pack',
+          price: 'Daily Fresh Rate',
+          weight: 'Custom Pack Size',
+          availability: 'Fresh on Order',
+          tag: 'Pulao & Salad'
+        },
+        {
+          id: 'mixed-vegetables',
+          name: 'Mixed Vegetables',
+          subtitle: 'Balanced colourful mix for pav bhaji, pulao, soup & sabzi',
+          image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=85',
+          fallback: 'https://placehold.co/600x450/245C38/FFF8E9?text=Mixed+Vegetables+Pack',
+          price: 'Daily Fresh Rate',
+          weight: 'Custom Pack Size',
+          availability: 'Fresh on Order',
+          tag: 'Bestseller Pack'
+        }
+      ]
+    };
+
+    let appState = JSON.parse(localStorage.getItem('chopzi_vadodara_v2')) || JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+    let isEditMode = false;
+
+    // =========================================================================
+    // 2. RENDER PRODUCTS WITH ZIP-LOCK PACK BADGE & LIVE EDITABLE FIELDS
+    // =========================================================================
+    function renderProducts() {
+      const grid = document.getElementById('products-grid');
+      if (!grid) return;
+
+      grid.innerHTML = appState.products.map((item, idx) => {
+        const waText = encodeURIComponent(
+          `Hello CHOPZI Vadodara! I would like to know today's rate & place a pickup order for:\n• Item: ${item.name}\n• Pack Size: ${item.weight}\nPlease share today's price and pickup timing.`
+        );
+        const waUrl = `https://wa.me/${appState.countryCode}${appState.whatsappNumber}?text=${waText}`;
+
+        const editableAttr = isEditMode
+          ? `contenteditable="true" class="border-b-2 border-dashed border-carrotOrange bg-carrotOrange/10 px-2 py-0.5 rounded cursor-text focus:outline-none"`
+          : ``;
+
+        return `
+          <div class="product-card bg-white rounded-3xl overflow-hidden shadow-lg shadow-deepGreen/5 border border-deepGreen/10 flex flex-col justify-between">
+            <div>
+              <!-- Image Container with Transparent Zip-Lock Sleeve Indicator -->
+              <div class="relative h-60 overflow-hidden bg-warmCream group">
+                <img
+                  src="${item.image}"
+                  onerror="this.src='${item.fallback}'"
+                  alt="${item.name} in Zip-Lock Pouch"
+                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <!-- Subtle Glossy Zip-Lock Top Strip -->
+                <div class="absolute top-0 inset-x-0 h-5 bg-white/55 backdrop-blur-xs border-b border-white/80 flex items-center justify-center">
+                  <span class="text-[9px] font-bold tracking-widest uppercase text-deepGreen/75">ZIP-LOCK FRESH SEAL</span>
+                </div>
+
+                <!-- Top Tag -->
+                <span class="absolute top-8 left-4 bg-deepGreen/90 backdrop-blur-md text-warmCream text-xs font-display font-bold px-3 py-1 rounded-full shadow">
+                  ${item.tag}
+                </span>
+
+                <!-- Editable Availability Pill -->
+                <span
+                  onblur="updateProductField(${idx}, 'availability', this.innerText)"
+                  ${editableAttr}
+                  class="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md text-deepGreen text-xs font-bold px-3 py-1 rounded-full shadow border border-freshGreen/40 ${isEditMode ? 'ring-2 ring-carrotOrange' : ''}"
+                >
+                  <i class="fa-solid fa-circle text-[8px] text-freshGreen mr-1"></i>${item.availability}
+                </span>
+              </div>
+
+              <!-- Card Body -->
+              <div class="p-6">
+                <h3 class="font-display font-extrabold text-2xl text-deepGreen mb-1.5">${item.name}</h3>
+                <p class="text-sm text-deepGreen/75 mb-5 leading-relaxed">${item.subtitle}</p>
+
+                <!-- Editable Price & Weight Row -->
+                <div class="grid grid-cols-2 gap-3 bg-warmCream p-3.5 rounded-2xl border border-deepGreen/10 mb-5">
+                  <div>
+                    <span class="block text-[11px] font-bold uppercase tracking-wider text-deepGreen/60">Rate</span>
+                    <span
+                      onblur="updateProductField(${idx}, 'price', this.innerText)"
+                      ${editableAttr}
+                      class="font-display font-extrabold text-sm text-deepGreen inline-block mt-0.5"
+                    >${item.price}</span>
+                  </div>
+                  <div class="border-l border-deepGreen/10 pl-3">
+                    <span class="block text-[11px] font-bold uppercase tracking-wider text-deepGreen/60">Pack Option</span>
+                    <span
+                      onblur="updateProductField(${idx}, 'weight', this.innerText)"
+                      ${editableAttr}
+                      class="font-display font-bold text-sm text-carrotOrange inline-block mt-0.5"
+                    >${item.weight}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Footer CTA -->
+            <div class="px-6 pb-6">
+              <a
+                href="${waUrl}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="w-full inline-flex items-center justify-center gap-2 bg-deepGreen hover:bg-carrotOrange text-white font-display font-bold py-3.5 px-5 rounded-2xl shadow-md transition-colors duration-300 text-sm sm:text-base"
+              >
+                <i class="fa-brands fa-whatsapp text-xl text-freshGreen group-hover:text-white"></i>
+                <span>Ask Rate & Order on WhatsApp</span>
+              </a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // =========================================================================
+    // 3. LIVE EDIT MODE, STORAGE & WHATSAPP SYNC FUNCTIONS
+    // =========================================================================
+    function toggleEditMode() {
+      isEditMode = !isEditMode;
+      const banner = document.getElementById('owner-edit-banner');
+      const label = document.getElementById('edit-mode-label');
+      if (isEditMode) {
+        banner.classList.remove('hidden');
+        label.innerText = 'Done Editing';
+        showToast('Edit Mode ON: Click any price, weight, or availability to update!');
+      } else {
+        banner.classList.add('hidden');
+        label.innerText = 'Edit Prices & Weights';
+        showToast('All product updates saved!');
+      }
+      renderProducts();
+    }
+
+    function updateProductField(index, field, value) {
+      const cleaned = value.trim();
+      if (cleaned) {
+        appState.products[index][field] = cleaned;
+        saveState();
+      }
+    }
+
+    function updateWhatsAppNumber(newNum) {
+      const digits = newNum.replace(/\D/g, '');
+      if (digits.length >= 10) {
+        appState.whatsappNumber = digits;
+        saveState();
+        syncWhatsAppLinks();
+        renderProducts();
+        showToast('WhatsApp number updated to ' + digits);
+      }
+    }
+
+    function syncWhatsAppLinks() {
+      const phoneDisplay = document.getElementById('contact-phone-display');
+      const footerPhone = document.getElementById('footer-phone-display');
+      const inputField = document.getElementById('whatsapp-number-input');
+      if (phoneDisplay) phoneDisplay.innerText = appState.whatsappNumber;
+      if (footerPhone) footerPhone.innerText = appState.whatsappNumber;
+      if (inputField) inputField.value = appState.whatsappNumber;
+
+      document.querySelectorAll('[data-wa-link="general"]').forEach((el) => {
+        el.href = `https://wa.me/${appState.countryCode}${appState.whatsappNumber}?text=${encodeURIComponent(
+          'Hi CHOPZI Vadodara! I would like to order freshly chopped vegetables.'
+        )}`;
+      });
+    }
+
+    function resetCatalogData() {
+      localStorage.removeItem('chopzi_vadodara_v2');
+      appState = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+      syncWhatsAppLinks();
+      renderProducts();
+      showToast('Reset to default settings.');
+    }
+
+    function saveState() {
+      localStorage.setItem('chopzi_vadodara_v2', JSON.stringify(appState));
+    }
+
+    function saveState() {
+      localStorage.setItem('chopzi_vadodara_data', JSON.stringify(appState));
+    }
+
+    // =========================================================================
+    // 4. EXACT ORIGINAL LOGO UPLOADER (Zero cropping, zero recoloring)
+    // =========================================================================
+    function handleLogoUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const dataUrl = e.target.result;
+        const navLogo = document.getElementById('navbar-logo-img');
+        const footerLogo = document.getElementById('footer-logo-img');
+        if (navLogo) navLogo.src = dataUrl;
+        if (footerLogo) footerLogo.src = dataUrl;
+
+        // Also update the brand stickers on the transparent zip-lock pouches!
+        document.querySelectorAll('.brand-sticker-img').forEach((img) => {
+          img.src = dataUrl;
+        });
+
+        try {
+          localStorage.setItem('chopzi_custom_logo', dataUrl);
+        } catch (err) {
+          // Ignore storage quota if image is very large
+        }
+        showToast('Your original brand logo is now live across the navbar, packets & footer!');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function loadSavedLogo() {
+      const savedLogo = localStorage.getItem('chopzi_custom_logo');
+      if (savedLogo) {
+        const navLogo = document.getElementById('navbar-logo-img');
+        const footerLogo = document.getElementById('footer-logo-img');
+        if (navLogo) navLogo.src = savedLogo;
+        if (footerLogo) footerLogo.src = savedLogo;
+        document.querySelectorAll('.brand-sticker-img').forEach((img) => {
+          img.src = savedLogo;
+        });
+      }
+    }
+
+    // =========================================================================
+    // 5. CUSTOM WHATSAPP FORM & MODAL HELPERS
+    // =========================================================================
+    function sendCustomWhatsAppOrder(e) {
+      e.preventDefault();
+      const name = document.getElementById('cust-name').value.trim() || 'Customer';
+      const pickupTime = document.getElementById('cust-area').value.trim() || 'Flexible';
+      const items = document.getElementById('cust-items').value.trim() || 'Fresh Chopped Vegetables';
+
+      const message = `Hello CHOPZI Vadodara!\n*Name:* ${name}\n*Preferred Pickup Time:* ${pickupTime}\n*Vegetables Needed:* ${items}\nPlease share today's rate and pickup location.`;
+      const url = `https://wa.me/${appState.countryCode}${appState.whatsappNumber}?text=${encodeURIComponent(message)}`;
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      menu.classList.toggle('hidden');
+    }
+
+    function openPromptModal() {
+      document.getElementById('prompt-modal').classList.remove('hidden');
+    }
+
+    function closePromptModal() {
+      document.getElementById('prompt-modal').classList.add('hidden');
+    }
+
+    function copyPromptText(elementId, btn) {
+      const text = document.getElementById(elementId).innerText.trim();
+      const tempInput = document.createElement('textarea');
+      tempInput.value = text;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+
+      const originalText = btn.innerText;
+      btn.innerText = 'Copied!';
+      showToast('AI Image Prompt copied to clipboard!');
+      setTimeout(() => {
+        btn.innerText = originalText;
+      }, 2000);
+    }
+
+    function showToast(msg) {
+      const box = document.getElementById('toast-box');
+      const label = document.getElementById('toast-message');
+      label.innerText = msg;
+      box.classList.remove('opacity-0');
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => {
+        box.classList.add('opacity-0');
+      }, 3200);
+    }
+
+    // =========================================================================
+    // 6. LIGHTWEIGHT 3D FLOATING VEGETABLES (Three.js Procedural 3D Models)
+    // =========================================================================
+    function init3DVegetables() {
+      const canvas = document.getElementById('three-hero-canvas');
+      if (!canvas || typeof THREE === 'undefined') return;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+      camera.position.z = 16;
+
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+      renderer.shadowMap.enabled = true;
+
+      // Studio Lighting
+      const ambientLight = new THREE.AmbientLight(0xfff8e9, 0.95);
+      scene.add(ambientLight);
+
+      const dirLight = new THREE.DirectionalLight(0xffffff, 1.15);
+      dirLight.position.set(8, 12, 10);
+      scene.add(dirLight);
+
+      const rimLight = new THREE.DirectionalLight(0x8dbf69, 0.65);
+      rimLight.position.set(-10, -6, 6);
+      scene.add(rimLight);
+
+      const veggies = [];
+
+      // Helper: Create 3D Carrot
+      function create3DCarrot() {
+        const group = new THREE.Group();
+        const bodyGeo = new THREE.ConeGeometry(0.48, 2.2, 20);
+        const bodyMat = new THREE.MeshStandardMaterial({ color: 0xf49a38, roughness: 0.35, metalness: 0.05 });
+        const body = new THREE.Mesh(bodyGeo, bodyMat);
+        body.rotation.z = Math.PI;
+        group.add(body);
+
+        const leafMat = new THREE.MeshStandardMaterial({ color: 0x245c38, roughness: 0.45 });
+        for (let i = 0; i < 3; i++) {
+          const leafGeo = new THREE.ConeGeometry(0.14, 0.75, 10);
+          const leaf = new THREE.Mesh(leafGeo, leafMat);
+          leaf.position.set((i - 1) * 0.16, 1.3, 0);
+          leaf.rotation.z = (i - 1) * -0.25;
+          group.add(leaf);
+        }
+        return group;
+      }
+
+      // Helper: Create 3D Tomato
+      function create3DTomato() {
+        const group = new THREE.Group();
+        const sphereGeo = new THREE.SphereGeometry(0.68, 24, 20);
+        sphereGeo.scale(1.12, 0.9, 1.12);
+        const sphereMat = new THREE.MeshStandardMaterial({ color: 0xe63926, roughness: 0.22, metalness: 0.08 });
+        const tomato = new THREE.Mesh(sphereGeo, sphereMat);
+        group.add(tomato);
+
+        const stemMat = new THREE.MeshStandardMaterial({ color: 0x245c38, roughness: 0.5 });
+        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 0.35, 8), stemMat);
+        stem.position.y = 0.65;
+        group.add(stem);
+        return group;
+      }
+
+      // Helper: Create 3D Broccoli Floret
+      function create3DBroccoli() {
+        const group = new THREE.Group();
+        const stalkMat = new THREE.MeshStandardMaterial({ color: 0x8dbf69, roughness: 0.5 });
+        const stalk = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.32, 0.9, 14), stalkMat);
+        stalk.position.y = -0.35;
+        group.add(stalk);
+
+        const crownMat = new THREE.MeshStandardMaterial({ color: 0x245c38, roughness: 0.65 });
+        const offsets = [
+          [0, 0.25, 0, 0.55],
+          [-0.38, 0.12, 0.15, 0.42],
+          [0.38, 0.14, -0.1, 0.44],
+          [0.05, 0.15, 0.36, 0.4],
+          [-0.08, 0.15, -0.36, 0.4]
+        ];
+        offsets.forEach(([x, y, z, r]) => {
+          const puff = new THREE.Mesh(new THREE.DodecahedronGeometry(r, 1), crownMat);
+          puff.position.set(x, y, z);
+          group.add(puff);
+        });
+        return group;
+      }
+
+      // Helper: Create 3D Cucumber Slice
+      function create3DCucumberSlice() {
+        const group = new THREE.Group();
+        const outerGeo = new THREE.CylinderGeometry(0.65, 0.65, 0.22, 24);
+        const outerMat = new THREE.MeshStandardMaterial({ color: 0x245c38, roughness: 0.4 });
+        const outer = new THREE.Mesh(outerGeo, outerMat);
+
+        const innerGeo = new THREE.CylinderGeometry(0.56, 0.56, 0.24, 24);
+        const innerMat = new THREE.MeshStandardMaterial({ color: 0xdff2c8, roughness: 0.3 });
+        const inner = new THREE.Mesh(innerGeo, innerMat);
+
+        group.add(outer);
+        group.add(inner);
+        return group;
+      }
+
+      // Helper: Create 3D Green Capsicum
+      function create3DCapsicum() {
+        const group = new THREE.Group();
+        const lobeMat = new THREE.MeshStandardMaterial({ color: 0x569e3d, roughness: 0.25, metalness: 0.06 });
+        const angles = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
+        angles.forEach((a) => {
+          const lobe = new THREE.Mesh(new THREE.SphereGeometry(0.45, 18, 16), lobeMat);
+          lobe.scale.set(0.85, 1.25, 0.85);
+          lobe.position.set(Math.cos(a) * 0.22, 0, Math.sin(a) * 0.22);
+          group.add(lobe);
+        });
+        const stem = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.07, 0.1, 0.35, 8),
+          new THREE.MeshStandardMaterial({ color: 0x245c38 })
+        );
+        stem.position.y = 0.65;
+        group.add(stem);
+        return group;
+      }
+
+      const placements = [
+        { mesh: create3DCarrot(), pos: [-7.5, 3.6, -2], scale: 0.95 },
+        { mesh: create3DBroccoli(), pos: [-6.8, -3.4, -1.5], scale: 1.05 },
+        { mesh: create3DTomato(), pos: [0.3, 4.1, -2.5], scale: 0.9 },
+        { mesh: create3DCapsicum(), pos: [7.8, 3.8, -2], scale: 0.95 },
+        { mesh: create3DCucumberSlice(), pos: [-1.2, -3.8, -1.5], scale: 1.0 },
+        { mesh: create3DCarrot(), pos: [7.5, -3.6, -2.5], scale: 0.85 },
+        { mesh: create3DTomato(), pos: [-8.4, 0.2, -3.5], scale: 0.75 },
+      ];
+
+      placements.forEach((p, i) => {
+        p.mesh.position.set(...p.pos);
+        p.mesh.scale.setScalar(p.scale);
+        p.mesh.userData = {
+          baseY: p.pos[1],
+          speed: 0.8 + i * 0.15,
+          phase: i * 1.3,
+          rotSpeedX: 0.006 + (i % 3) * 0.002,
+          rotSpeedY: 0.01 + (i % 2) * 0.004,
+        };
+        scene.add(p.mesh);
+        veggies.push(p.mesh);
+      });
+
+      // Interactive Mouse / Touch Parallax Rotation
+      let targetX = 0;
+      let targetY = 0;
+      let isDragging = false;
+      let prevX = 0;
+      let prevY = 0;
+
+      window.addEventListener('mousemove', (e) => {
+        const nx = (e.clientX / window.innerWidth) * 2 - 1;
+        const ny = -(e.clientY / window.innerHeight) * 2 + 1;
+        targetX = nx * 0.45;
+        targetY = ny * 0.35;
+        if (isDragging) {
+          const dx = e.clientX - prevX;
+          const dy = e.clientY - prevY;
+          veggies.forEach((v) => {
+            v.rotation.y += dx * 0.01;
+            v.rotation.x += dy * 0.01;
+          });
+          prevX = e.clientX;
+          prevY = e.clientY;
+        }
+      });
+
+      canvas.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        prevX = e.clientX;
+        prevY = e.clientY;
+      });
+      window.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
+
+      // Touch support
+      canvas.addEventListener('touchstart', (e) => {
+        if (e.touches.length > 0) {
+          isDragging = true;
+          prevX = e.touches[0].clientX;
+          prevY = e.touches[0].clientY;
+        }
+      }, { passive: true });
+
+      canvas.addEventListener('touchmove', (e) => {
+        if (isDragging && e.touches.length > 0) {
+          const dx = e.touches[0].clientX - prevX;
+          const dy = e.touches[0].clientY - prevY;
+          veggies.forEach((v) => {
+            v.rotation.y += dx * 0.01;
+            v.rotation.x += dy * 0.01;
+          });
+          prevX = e.touches[0].clientX;
+          prevY = e.touches[0].clientY;
+        }
+      }, { passive: true });
+
+      canvas.addEventListener('touchend', () => {
+        isDragging = false;
+      });
+
+      // Responsive Resize
+      function handleResize() {
+        const parent = canvas.parentElement;
+        if (!parent) return;
+        const w = parent.clientWidth;
+        const h = parent.clientHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      }
+      window.addEventListener('resize', handleResize);
+
+      // Smooth Animation Loop
+      const clock = new THREE.Clock();
+      function animate() {
+        requestAnimationFrame(animate);
+        const elapsed = clock.getElapsedTime();
+
+        veggies.forEach((v) => {
+          const d = v.userData;
+          v.position.y = d.baseY + Math.sin(elapsed * d.speed + d.phase) * 0.35;
+          v.rotation.x += d.rotSpeedX;
+          v.rotation.y += d.rotSpeedY;
+        });
+
+        camera.position.x += (targetX - camera.position.x) * 0.04;
+        camera.position.y += (targetY - camera.position.y) * 0.04;
+        camera.lookAt(0, 0, 0);
+
+        renderer.render(scene, camera);
+      }
+
+      animate();
+    }
+
+    // =========================================================================
+    // 7. SCROLL REVEAL OBSERVER & ONLOAD INIT
+    // =========================================================================
+    function initScrollReveal() {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+            }
+          });
+        },
+        { threshold: 0.12 }
+      );
+      document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+    }
+
+    window.onload = function () {
+      document.getElementById('current-year').innerText = new Date().getFullYear();
+      loadSavedLogo();
+      syncWhatsAppLinks();
+      renderProducts();
+      initScrollReveal();
+      init3DVegetables();
+    };
+  </script>
+</body>
+</html>
